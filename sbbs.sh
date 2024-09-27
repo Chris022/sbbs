@@ -35,7 +35,7 @@ do
     rm -rf ${BackupDestination}/${file} 
   fi
 done
-# for each file in location use the ~= operator.
+
 
 # Check amount of exising backups of target
 # Use the find command to find all tarballs staring with given target name
@@ -43,13 +43,24 @@ done
 # returns
 existing_backups=$(find ${BackupDestination} -name "${TargetName}_at_*.tar.gz" -type f | wc -l)
 
-echo "There already are ${existing_backups} many backups of this target"
+echo "There already are ${existing_backups} backups of this target"
 
 if [[ ${existing_backups} -ge ${BackupCount} ]]
 then
-  echo "Too many backups exist... deleting oldest one"
+  echo "Too many backups exist... deleting oldest one."
   # Find oldest backup
-
+  # To do this use awk to split the name of all files and reshape them to
+  # start with the name in the beginning of the file. Then use sort to sort the
+  # files and then use awk again to bring the filenames back into original
+  # order
+  readarray -t files <<< $(ls ${BackupDestination} | awk -F'[_\\-:.]' '{print $3 $4 $5 $6 $7 $8, $0}' | sort -n | awk -F' ' '{print $2}')
+  n=0 
+  while [[ ${existing_backups} -ge ${BackupCount} ]] 
+  do
+    rm "${BackupDestination}/${files[$n]}"
+    let "existing_backups=existing_backups-1" 
+    let "n=n+1"
+  done
 fi
 
 
