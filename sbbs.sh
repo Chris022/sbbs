@@ -65,14 +65,9 @@ remove_old_backups(){
 }
 
 
-# Define some constants.
-# These should enventually be moved to a config file.
-# For now only define all these things as a variable. Later these need to
-# become arrays to support multiple targets.
-readonly BackupNames="Documents Downloads" # Destination name should be a camel case string without any numbers.
-readonly BackupSources="/home/christoph/Documents /home/christoph/Downloads"
-readonly BackupCount=3
-readonly BackupTarget="/home/christoph/Backups"
+# Load Config
+source ~/.config/sbbs/config.sh
+
 
 oldIFS=${IFS}
 IFS=" "
@@ -82,8 +77,6 @@ read -ra backup_names <<< "$BackupNames"
 read -ra backup_sources <<< "$BackupSources"
 
 IFS=${oldIFS}
-
-# Main
 
 check_installed_progs ${Dependencies}
 
@@ -106,4 +99,5 @@ do
   echo "Cleaning old backups." 
   remove_old_backups ${BackupTarget} ${backup_names[$i]} ${BackupCount} 
 
+  echo ""
 done
