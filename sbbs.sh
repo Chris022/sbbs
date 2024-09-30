@@ -1,5 +1,6 @@
 #!/bin/bash
 
+readonly Dependencies="tar awk"
 readonly TargetPattern="[A-Z]([a-z][A-Z])*"
 readonly DateInfoPattern="[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}:[0-9]{2}:[0-9]{2}"
 readonly FileExtensionPattern="\.tar\.gz"
@@ -21,25 +22,6 @@ check_installed_progs(){
     then
       echo "The command $required_prog could not be found. Please make sure it is installed!"
       exit 1
-    fi
-  done
-}
-
-
-# Check if all files in a given folder have a valid name. If they don't delete
-# the file. A valid name starts with a CamelCase String followed by "_at_" and
-# then a date in YYYY-MM-DD_HH:MM:SS. The files has to have the filetype
-# ".tar.gz".
-# Args:
-#   $1 - String - Path to the location where the files are located.
-check_valid_file_names(){
-  dest=$1
-  readarray -d "\n" -t files <<< $(ls ${dest})
-  for file in ${files}
-  do
-    if [[ ! ${file} =~ [A-Z][a-z]+"_at_"[-1-9]{4}"-"[0-9]{2}"-"[0-9]{2}"_"[0-9]{2}":"[0-9]{2}":"[0-9]{2}".tar.gz" ]]
-    then
-      rm -rf ${dest}/${file} 
     fi
   done
 }
@@ -71,10 +53,10 @@ remove_old_backups(){
   backups=$(sort_backups "$(get_backups $1 $2)")
   cnt_backups=$(echo "$backups" | wc -l)
   readarray -d "\n" backups <<< $(echo "$backups")
-
+  
   for backup in $backups
   do
-    if [[ ${cnt_backups} -ge $3 ]]
+    if [[ ${cnt_backups} -gt $3 ]]
     then
       rm "$1/${backup}"
       let "cnt_backups=cnt_backups-1"
@@ -83,33 +65,45 @@ remove_old_backups(){
 }
 
 
-# Main
-
-check_installed_progs "tar"
-
 # Define some constants.
 # These should enventually be moved to a config file.
 # For now only define all these things as a variable. Later these need to
 # become arrays to support multiple targets.
-readonly TargetName="Documents" # Destination name should be a camel case string without any numbers.
-readonly BackupDestination="/home/christoph/Backups"
-readonly BackupTarget="/home/christoph/Documents"
-readonly BackupCount=5
+readonly BackupNames="Documents Downloads" # Destination name should be a camel case string without any numbers.
+readonly BackupSources="/home/christoph/Documents /home/christoph/Downloads"
+readonly BackupCount=3
+readonly BackupTarget="/home/christoph/Backups"
 
+oldIFS=${IFS}
+IFS=" "
 
-# TODO Check the existance of all the given locations
+# Use tr command to replace the delimiter character with a newline
+read -ra backup_names <<< "$BackupNames"
+read -ra backup_sources <<< "$BackupSources"
 
+IFS=${oldIFS}
 
+# Main
 
-#check_valid_file_names ${BackupDestination}
-remove_old_backups ${BackupDestination} ${TargetName} ${BackupCount}
+check_installed_progs ${Dependencies}
 
-# Create the new name of the tarball
-printf -v date '%(%Y-%m-%d_%H:%M:%S)T' -1 # Get the current date and time
-tarball_name="${TargetName}_at_${date}"
+# For each Target start compressing and moving the new backup into the location
+# and then deleting the old ones.
 
+for ((i=0;i < ${#backup_names[@]}; i++))
+do
+  echo "Backup '${backup_names[$i]}' started."
+  echo "Zipping '${backup_sources[$i]}'."
+  
+  # Create the new name of the tarball
+  printf -v date '%(%Y-%m-%d_%H:%M:%S)T' -1 # Get the current date and time
+  tarball_name="${backup_names[$i]}_at_${date}"
+  
+  # Compress the backup target 
+  # Use the -C option to run the command from the root directory!
+  tar -czf ${BackupTarget}/${tarball_name}.tar.gz -C / ${backup_sources[$i]} &> /dev/null
+  
+  echo "Cleaning old backups." 
+  remove_old_backups ${BackupTarget} ${backup_names[$i]} ${BackupCount} 
 
-# Compress the backup target 
-# Use the -C option to run the command from the root directory!
-tar -czf ${BackupDestination}/${tarball_name}.tar.gz -C / ${BackupTarget} &> /dev/null
-
+done
