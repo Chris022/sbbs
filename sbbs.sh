@@ -1,5 +1,6 @@
 #!/bin/bash
 
+readonly ConfigFile=~/.config/sbbs/config.sh
 readonly Dependencies="tar awk"
 readonly TargetPattern="[A-Z]([a-z][A-Z])*"
 readonly DateInfoPattern="[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}:[0-9]{2}:[0-9]{2}"
@@ -64,9 +65,14 @@ remove_old_backups(){
   done
 }
 
+# Check if config exists.
+if [ ! -f "$ConfigFile" ]; then
+  echo "Config File at '${ConfigFile}' does not exist!"
+  exit 1
+fi
 
 # Load Config
-source ~/.config/sbbs/config.sh
+source ${ConfigFile}
 
 
 oldIFS=${IFS}
