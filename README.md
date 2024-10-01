@@ -3,6 +3,7 @@ A Simple Bash Backup Script
 
 ## Installation
 To install this program simply run the install.sh as root.
+Don't forget to edit the config file `etc/sbbs`.
 Then enable the timer that runs the programm once every day using
 ```bash
 sudo systemctl start sbbs.timer && sudo systemctl enable sbbs.timer
