@@ -1,0 +1,6 @@
+[Unit]
+Description=Run the sbbs backup program
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sbbs

@@ -1,6 +1,14 @@
 # sbbs
 A Simple Bash Backup Script
 
+## Installation
+To install this program simply run the install.sh as root.
+Then enable the timer that runs the programm once every day using
+```bash
+sudo systemctl start sbbs.timer && sudo systemctl enable sbbs.timer
+```
+
+
 ## Encryption
 This script also automatically encrypts the backups it creates. To do this it
 uses openssl. This was chosen instead of gpg since gpg does store state which

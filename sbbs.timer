@@ -1,0 +1,10 @@
+[Unit]
+Description=Run sbbs daily
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+Unit=sbbs.service
+
+[Install]
+WantedBy=timers.target

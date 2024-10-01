@@ -6,7 +6,7 @@
 # Extract public key:
 #   openssl rsa -in keyfile.key -pubout -out keyfile.pub
 
-readonly ConfigFile=~/.config/sbbs/config.sh
+readonly ConfigFile=/etc/sbbs
 readonly Dependencies="tar awk grep sort"
 readonly TargetPattern="[A-Z]([a-z][A-Z])*"
 readonly DateInfoPattern="[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}:[0-9]{2}:[0-9]{2}"
@@ -103,12 +103,18 @@ if [ ! -f "$ConfigFile" ]; then
   exit 1
 fi
 
+
 check_installed_progs ${Dependencies}
 
 
 # Load Config
 source ${ConfigFile}
 
+# Check if public key exists.
+if [ ! -f "$PublicKey" ]; then
+  echo "Public key at '${PublicKey}' does not exist!"
+  exit 1
+fi
 
 oldIFS=${IFS}
 IFS=" "
