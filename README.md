@@ -3,7 +3,18 @@ A Simple Bash Backup Script
 
 ## Installation
 To install this program simply run the install.sh as root.
+
+Next you need to create a encryption key pair for encrypting the backups. This
+is done by using the following commands. I'd suggest you placing your public
+key into /usr/share.
+```bash
+openssl genrsa -out private.key 4096 && openssl rsa -in private.key -pubout -out /usr/share/sbbs_public.pub
+```
+INFO: Make shure youre private key is stored somewhere secure! For example
+inside your password-save!
+
 Don't forget to edit the config file `etc/sbbs`.
+
 Then enable the timer that runs the programm once every day using
 ```bash
 sudo systemctl start sbbs.timer && sudo systemctl enable sbbs.timer
