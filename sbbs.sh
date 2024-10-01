@@ -1,7 +1,7 @@
 #!/bin/bash
 
 readonly ConfigFile=~/.config/sbbs/config.sh
-readonly Dependencies="tar awk"
+readonly Dependencies="tar awk grep sort"
 readonly TargetPattern="[A-Z]([a-z][A-Z])*"
 readonly DateInfoPattern="[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}:[0-9]{2}:[0-9]{2}"
 readonly FileExtensionPattern="\.tar\.gz"
@@ -65,11 +65,40 @@ remove_old_backups(){
   done
 }
 
+# Generates a symmetric key, then uses it to encrypt a given file then it
+# encrypts the symmetric key using a given public key and stores the given file
+# together with the encrypted key into a tar with the given name.
+# Args:
+#   $1 - String - The file to encrypt.
+#   $2 - String - The public key file.
+#   $3 - String - The name of the resulting file.
+encrypt_file(){
+  # Generate a random symmetric key
+  openssl rand 256 > /tmp/symmetric_key
+
+  # Use symmetric key to encrypt file 
+  openssl enc -aes-256-cbc -pbkdf2 -salt -out /tmp/file.enc -pass file:/tmp/symmetric_key -in $1
+
+  # Use public key to encrypt symmetric key
+  openssl pkeyutl -encrypt -pubin -inkey $2 -in /tmp/symmetric_key -out /tmp/key.enc
+
+  # Remove unencryped symmetric key
+  rm /tmp/symmetric_key
+
+  # Now move the key and the file into a new tar
+  tar -cjf $3 -C /tmp "file.enc" "key.enc"
+
+  rm /tmp/file.enc /tmp/key.enc
+}
+
 # Check if config exists.
 if [ ! -f "$ConfigFile" ]; then
   echo "Config File at '${ConfigFile}' does not exist!"
   exit 1
 fi
+
+check_installed_progs ${Dependencies}
+
 
 # Load Config
 source ${ConfigFile}
@@ -84,7 +113,6 @@ read -ra backup_sources <<< "$BackupSources"
 
 IFS=${oldIFS}
 
-check_installed_progs ${Dependencies}
 
 # For each Target start compressing and moving the new backup into the location
 # and then deleting the old ones.
@@ -100,7 +128,13 @@ do
   
   # Compress the backup target 
   # Use the -C option to run the command from the root directory!
-  tar -czf ${BackupTarget}/${tarball_name}.tar.gz -C / ${backup_sources[$i]} &> /dev/null
+  tar -czf /tmp/data.tar.gz -C / ${backup_sources[$i]} &> /dev/null 
+  
+  encrypt_file "/tmp/data.tar.gz" ${PublicKey} ${BackupTarget}/${tarball_name}.tar.gz
+
+  rm /tmp/data.tar.gz
+
+ #tar -czf ${BackupTarget}/${tarball_name}.tar.gz -C / ${backup_sources[$i]} &> /dev/null
   
   echo "Cleaning old backups." 
   remove_old_backups ${BackupTarget} ${backup_names[$i]} ${BackupCount} 
