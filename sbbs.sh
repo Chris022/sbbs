@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Use the following commands to create a key-pair!
+# Generate public-private key pair:
+#   openssl genrsa -out keyfile.key 4096
+# Extract public key:
+#   openssl rsa -in keyfile.key -pubout -out keyfile.pub
+
 readonly ConfigFile=~/.config/sbbs/config.sh
 readonly Dependencies="tar awk grep sort"
 readonly TargetPattern="[A-Z]([a-z][A-Z])*"
