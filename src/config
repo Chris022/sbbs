@@ -2,4 +2,4 @@ readonly BackupNames="Documents Downloads" # Destination name should be a camel 
 readonly BackupSources="/home/christoph/Documents /home/christoph/Downloads"
 readonly BackupCount=3
 readonly BackupTarget="/home/christoph/Backups"
-readonly PublicKey="/home/christoph/Repos/sbbs/keyfile.pub"
+readonly PublicKey="/usr/share/sbbs_public.pub"
