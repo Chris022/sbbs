@@ -34,7 +34,7 @@ Data itself is then encrypted using the symmetric key!
 ## Cloud storrage
 If you want to store your backups into the cloud, I'd suggest using rclone. I'd
 suggest first copying your backups to a local location (e.g. a sd card) and
-then using the Done\_Command option in the config file, to execute a command
+then using the DeCommand option in the config file, to execute a command
 after the programm executed successfully.
 
 ### Google Drive
