@@ -3,5 +3,5 @@ readonly BackupSources="/home/christoph/Documents"
 readonly BackupCount=4
 readonly BackupTarget="/media/backups"
 readonly PublicKey="/usr/share/sbbs/public.pub"
-readonly StartCommand="i3-nagbar -m 'Backup started!' &> /dev/null"
-readonly DoneCommand="rclone sync ${BackupTarget} backups:/ && i3-nagbar -m 'Backup done!' &> /dev/null"
+readonly StartCommand=""
+readonly DoneCommand="rclone sync ${BackupTarget} backups:/"
