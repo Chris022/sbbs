@@ -52,7 +52,26 @@ the following list of commands:
 --checkers=10 --drive-chunk-size=16384 FOLDERPATH REMOTENAME:/` to sync between
 the local folder and Google Drive.
 
+## Recover
+In order to recover a backup, start by creating a new file `private.key`.
+Edit this file and paste your private Key inside. Make shure the "---....---"
+at the end and the beginning of the key are on a new line each. (Your file
+should consits out of 3 lines)
+Next you simply download the backup from drive and unpack it with
+```bash
+tar -xf FILENAME.tar.gz
+```
+Next you need to decrypt the symmetric key used to encrypt the data itself.
+This can be done using the following command.
+```bash
+openssl pkeyutl -decrypt -inkey ./private.key -in key.enc -out key
+```
+Now the symmetric key can be used to decrypt the real data.
+```bash
+openssl enc -d -aes-256-cbc -pbkdf2 -salt -out data.tar.gz -pass file:key -in file.enc
+```
 
-
-
-
+Then unpack the final tar using
+```bash
+tar -xf data.tar.gz
+```
