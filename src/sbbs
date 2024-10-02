@@ -133,6 +133,12 @@ read -ra backup_sources <<< "$BackupSources"
 IFS=${oldIFS}
 
 
+# Check if the StartCommand is set
+if [ ! -z ${StartCommand+x} ]; then 
+  eval "${StartCommand}" 
+fi
+
+
 # For each Target start compressing and moving the new backup into the location
 # and then deleting the old ones.
 

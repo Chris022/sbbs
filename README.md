@@ -42,7 +42,7 @@ Lets say you want to backup your data to google drive. In that case you can use
 the following list of commands:
 
 1) Install rclone `sudo pacman -S rclone`
-2) Configure rclone `rclone config` and create a new remote by pressing "n".
+2) Configure rclone `sudo rclone config` and create a new remote by pressing "n".
 3) You can call your remote whatever you want. I'll call it "backups".
 4) Select "Google Drive" and leave clinet\_id client\_secret blank! And choose
 1 as a permission.

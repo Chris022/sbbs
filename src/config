@@ -1,5 +1,7 @@
-readonly BackupNames="Documents Downloads" # Destination name should be a camel case string without any numbers.
-readonly BackupSources="/home/christoph/Documents /home/christoph/Downloads"
-readonly BackupCount=3
-readonly BackupTarget="/home/christoph/Backups"
-readonly PublicKey="/usr/share/sbbs_public.pub"
+readonly BackupNames="Documents" # Destination name should be a camel case string without any numbers.
+readonly BackupSources="/home/christoph/Documents"
+readonly BackupCount=4
+readonly BackupTarget="/media/backups"
+readonly PublicKey="/usr/share/sbbs/public.pub"
+readonly StartCommand="i3-nagbar -m 'Backup started!' &> /dev/null"
+readonly DoneCommand="rclone sync ${BackupTarget} backups:/ && i3-nagbar -m 'Backup done!' &> /dev/null"
