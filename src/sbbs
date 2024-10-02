@@ -118,8 +118,8 @@ if [ ! -f "$PublicKey" ]; then
 fi
 
 # Check if backup target exists
-if [ ! -f "$BackupTarget" ]; then
-  echo "Backup target '${BackupTarget}' does not exits!"
+if [ ! -d "$BackupTarget" ]; then
+  echo "Backup target '${BackupTarget}' does not exist!"
   exit 1
 fi
 
