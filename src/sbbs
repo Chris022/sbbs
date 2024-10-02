@@ -9,7 +9,7 @@
 readonly ConfigFile=/etc/sbbs
 readonly Dependencies="tar awk grep sort"
 readonly TargetPattern="[A-Z]([a-z][A-Z])*"
-readonly DateInfoPattern="[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}:[0-9]{2}:[0-9]{2}"
+readonly DateInfoPattern="[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}"
 readonly FileExtensionPattern="\.tar\.gz"
 readonly BackupFilePattern="${TargetPattern}_at_${DateInfoPattern}${FileExtensionPattern}"
 
@@ -46,7 +46,7 @@ get_backups(){
 # Args:
 #   $1 - String - A newline seperated list of filenames
 sort_backups(){
-  echo "$(echo "$1"  | awk -F'[_\\-:.]' '{print $3 $4 $5 $6 $7 $8, $0}' | sort -n | awk -F' ' '{print $2}')"
+  echo "$(echo "$1"  | awk -F'[_\\-.]' '{print $3 $4 $5 $6 $7 $8, $0}' | sort -n | awk -F' ' '{print $2}')"
 }
 
 
@@ -92,7 +92,8 @@ encrypt_file(){
   rm /tmp/symmetric_key
 
   # Now move the key and the file into a new tar
-  tar -cjf $3 -C /tmp "file.enc" "key.enc"
+  echo "Now zipping to location $3"
+  tar -cjf "$3" -C /tmp "file.enc" "key.enc" --force-local
 
   rm /tmp/file.enc /tmp/key.enc
 }
@@ -116,6 +117,12 @@ if [ ! -f "$PublicKey" ]; then
   exit 1
 fi
 
+# Check if backup target exists
+if [ ! -f "$BackupTarget" ]; then
+  echo "Backup target '${BackupTarget}' does not exits!"
+  exit 1
+fi
+
 oldIFS=${IFS}
 IFS=" "
 
@@ -131,11 +138,17 @@ IFS=${oldIFS}
 
 for ((i=0;i < ${#backup_names[@]}; i++))
 do
+  # Check if backup source exists
+  if [ ! -f "${backup_sources[$i]}" ]; then
+    echo "Backup source '${backup_sources[$i]}' does not exist!"
+    continue 
+  fi
+
   echo "Backup '${backup_names[$i]}' started."
   echo "Zipping '${backup_sources[$i]}'."
   
   # Create the new name of the tarball
-  printf -v date '%(%Y-%m-%d_%H:%M:%S)T' -1 # Get the current date and time
+  printf -v date '%(%Y-%m-%d_%H-%M-%S)T' -1 # Get the current date and time
   tarball_name="${backup_names[$i]}_at_${date}"
   
   # Compress the backup target 
