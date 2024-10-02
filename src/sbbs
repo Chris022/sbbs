@@ -139,7 +139,7 @@ IFS=${oldIFS}
 for ((i=0;i < ${#backup_names[@]}; i++))
 do
   # Check if backup source exists
-  if [ ! -f "${backup_sources[$i]}" ]; then
+  if [ ! -d "${backup_sources[$i]}" ]; then
     echo "Backup source '${backup_sources[$i]}' does not exist!"
     continue 
   fi
@@ -166,3 +166,9 @@ do
 
   echo ""
 done
+
+# Check if the DoneCommand is set
+if [ ! -z ${DoneCommand+x} ]; then 
+  eval "${DoneCommand}" 
+fi
+
